@@ -1,0 +1,465 @@
+datasource db {
+  provider  = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum BusinessStatus {
+  NEW
+  CONTACTING
+  CONTACTED
+  REPLIED
+  MEETING
+  PROPOSAL
+  WON
+  LOST
+  SKIPPED
+}
+
+enum OutreachOutcome {
+  NONE
+  NO_RESPONSE
+  INTERESTED
+  NOT_INTERESTED
+}
+
+enum OutreachChannel {
+  EMAIL
+  WHATSAPP
+  PHONE
+  LINKEDIN
+  INSTAGRAM
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum SocialPlatform {
+  INSTAGRAM
+  LINKEDIN
+  FACEBOOK
+  TWITTER
+  YOUTUBE
+  TIKTOK
+}
+
+enum ReportType {
+  PROFILE
+  WEBSITE
+  COMPETITOR
+  OUTREACH
+  FULL_ANALYSIS
+}
+
+enum OpportunityStatus {
+  OPEN
+  ACTIVE
+  CLOSED
+  LOST
+}
+
+enum ServiceType {
+  WEBSITE
+  SEO
+  AUTOMATION
+  MARKETING
+  AI
+  SOFTWARE
+  BRANDING
+}
+
+enum SearchPlatform {
+  GOOGLE_MAPS
+  INSTAGRAM
+  LINKEDIN
+  FACEBOOK
+  CUSTOM
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum ActivityType {
+  SEARCH_CREATED
+  BUSINESS_CREATED
+  REPORT_GENERATED
+  TASK_CREATED
+  TASK_COMPLETED
+  DEAL_CREATED
+  DEAL_UPDATED
+  EMAIL_SENT
+  CALL_MADE
+  NOTE_CREATED
+  AUDIT_COMPLETED
+  COMPETITOR_UPDATED
+  SCORE_CHANGED
+  OPPORTUNITY_GENERATED
+}
+
+model Business {
+  id             String           @id @default(uuid())
+  name           String
+  slug           String           @unique
+  industry       String?
+  description    String?
+  website        String?
+  email          String?
+  phone          String?
+  rating         Float?
+  reviewCount    Int?             @map("review_count")
+  status         BusinessStatus   @default(NEW)
+  city           String?
+  state          String?
+  country        String?
+  address        String?
+  latitude       Float?
+  longitude      Float?
+  googlePlaceId  String?          @map("google_place_id")
+  verifiedWebsite           String?          @map("verified_website")
+  websiteConfidence         Float?           @map("website_confidence")
+  websiteSource             String?          @map("website_source")
+  verificationMethod        String?          @map("verification_method")
+  verificationDate          DateTime?        @map("verification_date")
+  verificationEvidence      Json?            @map("verification_evidence")
+  ownerName                 String?          @map("owner_name")
+  ownerRole                 String?          @map("owner_role")
+  ownerLinkedIn             String?          @map("owner_linkedin")
+  ownerEmail                String?          @map("owner_email")
+  ownerPhone                String?          @map("owner_phone")
+  ownerConfidence           Float?           @map("owner_confidence")
+  enterpriseFlag            Boolean          @default(false) @map("enterprise_flag")
+  franchiseFlag             Boolean          @default(false) @map("franchise_flag")
+  outreachSuitabilityScore  Int?             @map("outreach_suitability_score")
+  sourceKeywords            String[]         @default([]) @map("source_keywords")
+  sourceLocations           String[]         @default([]) @map("source_locations")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  websiteData    Website?
+  socialProfiles SocialProfile[]
+  contacts       BusinessContact[]
+  competitorOf   Competitor[]     @relation("BusinessToCompetitor")
+  asCompetitor   Competitor[]     @relation("BusinessAsCompetitor")
+  analyses       CompetitorAnalysis[]
+  aiReports      AIReport[]
+  opportunities  Opportunity[]
+  deals          Deal[]
+  tasks          Task[]
+  notes          Note[]
+  activities     Activity[]
+  leadIntelligence LeadIntelligence?
+  excludedFromOutreach Boolean          @default(false) @map("excluded_from_outreach")
+  collectionId   String?          @map("collection_id")
+  collection     Collection?      @relation(fields: [collectionId], references: [id], onDelete: SetNull)
+
+  @@index([website])
+  @@index([email])
+  @@index([phone])
+  @@map("business")
+}
+
+model Website {
+  id                 String         @id @default(uuid())
+  businessId         String         @unique @map("business_id")
+  business           Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  url                String
+  domain             String
+  technologyStack    Json           @map("technology_stack")
+  hostingProvider    String?        @map("hosting_provider")
+  cms                String?
+  sslEnabled         Boolean?       @map("ssl_enabled")
+  securityScore      Int?           @map("security_score")
+  performanceScore   Int?           @map("performance_score")
+  seoScore           Int?           @map("seo_score")
+  accessibilityScore Int?           @map("accessibility_score")
+  bestPracticesScore Int?           @map("best_practices_score")
+  overallScore       Int?           @map("overall_score")
+  lastScanAt         DateTime?      @map("last_scan_at")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+  issues             WebsiteIssue[]
+
+  @@map("website")
+}
+
+model WebsiteIssue {
+  id             String   @id @default(uuid())
+  websiteId      String   @map("website_id")
+  website        Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  type           String
+  severity       Severity
+  title          String
+  description    String?
+  recommendation String?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("website_issue")
+}
+
+model SocialProfile {
+  id              String         @id @default(uuid())
+  businessId      String         @map("business_id")
+  business        Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  platform        SocialPlatform
+  url             String
+  username        String?
+  followers       Int?
+  following       Int?
+  posts           Int?
+  isActive        Boolean?       @map("is_active")
+  lastPostDate    DateTime?      @map("last_post_date")
+  engagementScore Float?         @map("engagement_score")
+  confidenceScore Float?         @map("confidence_score")
+  followersEstimate   Int?       @map("followers_estimate")
+  activityScore       Float?     @map("activity_score")
+  lastSeenDate        DateTime?  @map("last_seen_date")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  @@map("social_profile")
+}
+
+model BusinessContact {
+  id          String   @id @default(uuid())
+  businessId  String   @map("business_id")
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name        String?
+  email       String?
+  phone       String?
+  position    String?
+  linkedinUrl String?  @map("linkedin_url")
+  isPrimary   Boolean  @default(false) @map("is_primary")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("business_contact")
+}
+
+model Competitor {
+  id                   String               @id @default(uuid())
+  businessId           String               @map("business_id")
+  business             Business             @relation("BusinessToCompetitor", fields: [businessId], references: [id], onDelete: Cascade)
+  competitorBusinessId String               @map("competitor_business_id")
+  competitorBusiness   Business             @relation("BusinessAsCompetitor", fields: [competitorBusinessId], references: [id], onDelete: Cascade)
+  relationshipScore    Float?               @map("relationship_score")
+  createdAt            DateTime             @default(now()) @map("created_at")
+  analyses             CompetitorAnalysis[]
+
+  @@map("competitor")
+}
+
+model CompetitorAnalysis {
+  id              String     @id @default(uuid())
+  businessId      String     @map("business_id")
+  business        Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  competitorId    String     @map("competitor_id")
+  competitor      Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  websiteScoreGap Int?       @map("website_score_gap")
+  seoGap          Int?       @map("seo_gap")
+  socialGap       Int?       @map("social_gap")
+  reviewGap       Int?       @map("review_gap")
+  brandGap        Int?       @map("brand_gap")
+  summary         String?
+  createdAt       DateTime   @default(now()) @map("created_at")
+
+  @@map("competitor_analysis")
+}
+
+model AIReport {
+  id              String     @id @default(uuid())
+  businessId      String     @map("business_id")
+  business        Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  reportType      ReportType @map("report_type")
+  summary         String?
+  opportunities   Json?
+  problems        Json?
+  recommendations Json?
+  salesAngles     Json?      @map("sales_angles")
+  confidenceScore Float?     @map("confidence_score")
+  generatedAt     DateTime   @default(now()) @map("generated_at")
+
+  @@index([businessId])
+  @@map("ai_report")
+}
+
+model LeadIntelligence {
+  id                 String   @id @default(uuid())
+  businessId         String   @unique @map("business_id")
+  business           Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  leadScore          Int      @map("lead_score")
+  leadTier           String   @map("lead_tier")
+  urgencyScore       Int      @map("urgency_score")
+  reasonToBuyScore   Int      @map("reason_to_buy_score")
+  leadSummary        String?  @map("lead_summary")
+  leadPriorityRank   Int?     @map("lead_priority_rank")
+  salesReadinessScore Int?     @map("sales_readiness_score")
+  salesReadinessTier  String?  @map("sales_readiness_tier")
+  reachabilityScore   Int?     @map("reachability_score")
+  contactabilityTier  String?  @map("contactability_tier")
+  buyingIntent        String?  @map("buying_intent")
+  salesConfidence     String?  @map("sales_confidence")
+  opportunityScore    Int?     @map("opportunity_score")
+  buyerProbability    Float?   @map("buyer_probability")
+  closingProbability  Float?   @map("closing_probability")
+  revenuePotential    Float?   @map("revenue_potential")
+  estimatedDealValue  Float?   @map("estimated_deal_value")
+  lastCalculatedAt   DateTime @default(now()) @map("last_calculated_at")
+  businessSize       String?  @map("business_size")
+  abilityToPay       String?  @map("ability_to_pay")
+  primaryOffer           String?  @map("primary_offer")
+  secondaryOffer         String?  @map("secondary_offer")
+  offerConfidence        Int?     @map("offer_confidence")
+  offerReason            String?  @map("offer_reason")
+  preferredContactMethod String?  @map("preferred_contact_method")
+  contactMethodReason    String?  @map("contact_method_reason")
+  outreachDifficultyScore Int?    @map("outreach_difficulty_score")
+  outreachDifficultyLevel String?  @map("outreach_difficulty_level")
+  firstTouchStrategy     String?  @map("first_touch_strategy")
+  firstTouchReason       String?  @map("first_touch_reason")
+
+  @@map("lead_intelligence")
+}
+
+model Opportunity {
+  id               String            @id @default(uuid())
+  businessId       String            @map("business_id")
+  business         Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  title            String
+  description      String?
+  serviceType      ServiceType       @map("service_type")
+  priority         TaskPriority      @default(MEDIUM)
+  opportunityScore Int?              @map("opportunity_score")
+  estimatedValue   Float?            @map("estimated_value")
+  status           OpportunityStatus @default(OPEN)
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+
+  @@index([businessId])
+  @@map("opportunity")
+}
+
+model Collection {
+  id             String         @id @default(uuid())
+  keyword        String
+  location       String
+  radius         Float?
+  platform       SearchPlatform @default(GOOGLE_MAPS)
+  status         String         @default("PENDING")
+  totalFound     Int?           @default(0) @map("total_found")
+  totalProcessed Int?           @default(0) @map("total_processed")
+  startedAt      DateTime?      @map("started_at")
+  completedAt    DateTime?      @map("completed_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  scrapeResults  ScrapeResult[]
+  
+  // Refined Lead discovery sprint additions
+  targetCount      Int?           @default(100) @map("target_count")
+  keywords         String[]       @default([])
+  locations        String[]       @default([])
+  currentKeyword   String?        @map("current_keyword")
+  currentLocation  String?        @map("current_location")
+  businessesFailed Int?           @default(0) @map("businesses_failed")
+  businessesAudited Int?          @default(0) @map("businesses_audited")
+  stats            Json?          
+  businesses       Business[]
+
+  @@map("collection")
+}
+
+model ScrapeResult {
+  id            String     @id @default(uuid())
+  collectionId  String     @map("collection_id")
+  collection    Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  rawData       Json       @map("raw_data")
+  processed     Boolean    @default(false)
+  createdAt     DateTime   @default(now()) @map("created_at")
+
+  @@map("scrape_result")
+}
+
+model Pipeline {
+  id        String   @id @default(uuid())
+  name      String
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  deals     Deal[]
+
+  @@map("pipeline")
+}
+
+model Deal {
+  id                String    @id @default(uuid())
+  businessId        String    @map("business_id")
+  business          Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  pipelineId        String    @map("pipeline_id")
+  pipeline          Pipeline  @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  title             String
+  value             Float?
+  probability       Float?
+  expectedCloseDate DateTime? @map("expected_close_date")
+  status            String    @default("OPEN")
+  outreachChannel   OutreachChannel? @map("outreach_channel")
+  outreachOutcome   OutreachOutcome  @default(NONE) @map("outreach_outcome")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  @@index([pipelineId])
+  @@index([businessId])
+  @@map("deal")
+}
+
+model Task {
+  id          String       @id @default(uuid())
+  businessId  String       @map("business_id")
+  business    Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  priority    TaskPriority @default(MEDIUM)
+  status      TaskStatus   @default(TODO)
+  dueDate     DateTime?    @map("due_date")
+  completedAt DateTime?    @map("completed_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  @@index([dueDate])
+  @@map("task")
+}
+
+model Note {
+  id         String   @id @default(uuid())
+  businessId String   @map("business_id")
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  content    String
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("note")
+}
+
+model Activity {
+  id         String       @id @default(uuid())
+  businessId String?      @map("business_id")
+  business   Business?    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  type       ActivityType
+  metadata   Json?
+  createdAt  DateTime     @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("activity")
+}

@@ -1,0 +1,4114 @@
+[
+  {
+    "id": "icp-webdev-redesign",
+    "name": "Web Dev: Redesign & Performance Modernization",
+    "description": "Identifies established local businesses with active revenue but broken, slow, or missing websites.",
+    "targetNiche": "High-margin local services (Clinics, Law firms, Contractors, High-end Dining)",
+    "targetService": "WEBSITE_REDESIGN",
+    "isActive": true,
+    "scoringConfig": {
+      "mode": "additive",
+      "maxScore": 100,
+      "minPassingScore": 30,
+      "highPriorityThreshold": 70,
+      "mediumPriorityThreshold": 45,
+      "zeroScoreOnDisqualification": false
+    },
+    "rules": [
+      {
+        "id": "hf-min-reviews",
+        "name": "Minimum Established Business (>= 15 Reviews)",
+        "description": "Ensures the business is actively operating and generates client flow.",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        },
+        "failureExplanation": "Disqualified: Less than 15 Google reviews indicates early-stage or inactive business."
+      },
+      {
+        "id": "hf-must-have-phone",
+        "name": "Direct Phone Number Present",
+        "description": "Outreach channel requirement: Must have a phone number to pitch.",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        },
+        "failureExplanation": "Disqualified: Missing phone number makes direct sales outreach impossible."
+      },
+      {
+        "id": "ex-no-competitor-agencies",
+        "name": "Exclude Competitor Digital / Web Agencies",
+        "description": "Rejects other digital marketing or web development agencies.",
+        "type": "EXCLUSION",
+        "condition": {
+          "field": "industry",
+          "operator": "contains_any",
+          "value": [
+            "marketing",
+            "web design",
+            "software",
+            "seo agency"
+          ]
+        },
+        "explanation": "Disqualified: Identified as a peer digital agency / software firm."
+      },
+      {
+        "id": "ex-no-enterprise-hospitals",
+        "name": "Exclude Massive Enterprise Hospital Chains",
+        "description": "Enterprise healthcare chains require procurement contracts, not agency pitches.",
+        "type": "EXCLUSION",
+        "condition": {
+          "field": "name",
+          "operator": "contains_any",
+          "value": [
+            "apollo",
+            "fortis",
+            "max healthcare",
+            "medanta"
+          ]
+        },
+        "explanation": "Disqualified: National enterprise chain with dedicated internal IT."
+      },
+      {
+        "id": "ss-no-website",
+        "name": "No Website Detected (+30 pts)",
+        "description": "High-intent need: Actively operating with reviews but zero web presence.",
+        "type": "SOFT_SIGNAL",
+        "condition": {
+          "field": "website",
+          "operator": "does_not_exist"
+        },
+        "weight": 30,
+        "explanation": "Critical Need: Established business has no website; prime candidate for fresh build."
+      },
+      {
+        "id": "ss-low-overall-score",
+        "name": "Poor Overall Website Quality (< 60) (+20 pts)",
+        "description": "Existing website score is below modern standards.",
+        "type": "SOFT_SIGNAL",
+        "condition": {
+          "field": "websiteData.overallScore",
+          "operator": "less_than",
+          "value": 60
+        },
+        "weight": 20,
+        "explanation": "Technical Need: Overall website quality score is low (<60), signaling redesign opportunity."
+      },
+      {
+        "id": "ss-slow-performance",
+        "name": "Slow Mobile / Performance Score (< 50) (+15 pts)",
+        "description": "Poor loading performance damages conversion rates.",
+        "type": "SOFT_SIGNAL",
+        "condition": {
+          "field": "websiteData.performanceScore",
+          "operator": "less_than",
+          "value": 50
+        },
+        "weight": 15,
+        "explanation": "Performance Deficit: Website performance is severely impaired (<50)."
+      },
+      {
+        "id": "ss-missing-ssl",
+        "name": "Missing or Invalid SSL (+15 pts)",
+        "description": "Insecure website warnings scare away visitors.",
+        "type": "SOFT_SIGNAL",
+        "condition": {
+          "field": "websiteData.sslEnabled",
+          "operator": "equals",
+          "value": false
+        },
+        "weight": 15,
+        "explanation": "Security Deficit: Missing SSL certificate causes browser security warnings."
+      },
+      {
+        "id": "ss-high-ability-to-pay",
+        "name": "High Ability to Pay (>= 100 Reviews) (+20 pts)",
+        "description": "Indicates high customer turnover and budget to invest in web infrastructure.",
+        "type": "SOFT_SIGNAL",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 100
+        },
+        "weight": 20,
+        "explanation": "Budget Indicator: High review count (>=100) confirms strong revenue capacity."
+      }
+    ]
+  },
+  {
+    "id": "icp-marketing-seo",
+    "name": "Marketing: Local SEO & Paid Acquisition",
+    "description": "Targets high-rated businesses that lack organic search optimization or analytics instrumentation.",
+    "targetNiche": "Local service businesses",
+    "targetService": "LOCAL_SEO",
+    "isActive": true,
+    "scoringConfig": {
+      "mode": "additive",
+      "maxScore": 100,
+      "minPassingScore": 25,
+      "highPriorityThreshold": 65,
+      "mediumPriorityThreshold": 40
+    },
+    "rules": [
+      {
+        "id": "hf-min-rating",
+        "name": "Good Reputation (Rating >= 4.0)",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "rating",
+          "operator": "greater_than_or_equal",
+          "value": 4
+        },
+        "failureExplanation": "Disqualified: Reputation rating below 4.0 makes marketing harder to convert."
+      },
+      {
+        "id": "hf-has-website",
+        "name": "Must Have an Active Website",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "website",
+          "operator": "exists"
+        },
+        "failureExplanation": "Disqualified: SEO services require an active website."
+      },
+      {
+        "id": "ex-no-marketing-agencies",
+        "name": "Exclude Marketing Companies",
+        "type": "EXCLUSION",
+        "condition": {
+          "field": "industry",
+          "operator": "contains_any",
+          "value": [
+            "seo",
+            "marketing agency",
+            "advertising",
+            "public relations"
+          ]
+        },
+        "explanation": "Disqualified: Agency or marketing company."
+      },
+      {
+        "id": "ss-poor-seo-score",
+        "name": "Poor SEO Score (< 50) (+35 pts)",
+        "type": "SOFT_SIGNAL",
+        "condition": {
+          "field": "websiteData.seoScore",
+          "operator": "less_than",
+          "value": 50
+        },
+        "weight": 35,
+        "explanation": "High Opportunity: SEO score is below 50, indicating major optimization potential."
+      },
+      {
+        "id": "ss-active-instagram",
+        "name": "Active Social Presence But Weak Web (+25 pts)",
+        "type": "SOFT_SIGNAL",
+        "condition": {
+          "field": "socialProfilesCount",
+          "operator": "greater_than_or_equal",
+          "value": 1
+        },
+        "weight": 25,
+        "explanation": "Cross-Channel Gap: Business is active on social media but leaking web traffic."
+      },
+      {
+        "id": "ss-strong-reviews",
+        "name": "Strong Local Authority (>= 50 Reviews) (+20 pts)",
+        "type": "SOFT_SIGNAL",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 50
+        },
+        "weight": 20,
+        "explanation": "Authority: Strong customer base ready for local search dominance."
+      },
+      {
+        "id": "ss-has-owner-contact",
+        "name": "Identified Decision Maker (+20 pts)",
+        "type": "SOFT_SIGNAL",
+        "condition": {
+          "field": "hasOwner",
+          "operator": "equals",
+          "value": true
+        },
+        "weight": 20,
+        "explanation": "High Reachability: Owner or decision-maker contact identified."
+      }
+    ]
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791382077387-uab8k"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791382077389-ap862",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791382077392-cmqf8",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791382077394-8day",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791382077394-a60pa",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791382077396-nsrnx"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791382099706-z0c90"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791382099708-2qln0",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791382099711-su0dx",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791382099712-84lq",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791382099712-w3pkk",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791382099714-jvwnq"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791382123236-am8r1"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791382123239-et10a",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791382123241-4xgje",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791382123243-569w",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791382123243-4iyjo",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791382123245-nxmes"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791382564229-jitd3"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791382564232-ysfsk",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791382564236-xxazi",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791382564238-u0bg",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791382564238-p86dn",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791382564240-lqzqx"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791382597847-djyro"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791382597850-thtxu",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791382597854-h19ve",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791382597856-rbup",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791382597856-i6kc1",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791382597858-034ee"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791382786513-7uy05"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791382786516-ynxif",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791382786520-gkv0e",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791382786523-4b4a",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791382786523-fi3pk",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791382786525-q1xvr"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791385283615-om9n0"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791385283617-3xpvh",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791385283623-7w49e",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791385283625-0unk",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791385283625-r2rz8",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791385283627-uos6w"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791386289842-vir3v"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791386289846-riz9d",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386289851-k7zfu",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791386289852-d5uk",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386289852-ey0qg",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791386289855-005lg"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791386346384-ohavh"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791386346388-z0mkr",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386346391-to1zi",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791386346393-byj3",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386346393-yx0dr",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791386346395-v74dz"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791386563329-m561t"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791386563333-xg89v",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386563338-ogocv",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791386563340-7lcx",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386563340-izrdm",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791386563342-dsu60"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791386652503-q1lxh"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791386652507-tjl6c",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386652513-fapbz",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791386652515-wp2e",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386652514-9r0av",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791386652517-rymtw"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791386734920-ndv02"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791386734924-etc51",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386734930-ar62f",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791386734932-xo8b",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386734932-3jmks",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791386734935-2n8ml"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791386773542-hicns"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791386773545-09thg",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386773550-i09re",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791386773552-h9vw",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386773552-r6mjc",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791386773555-38s8u"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791386827401-0yx66"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791386827404-ygotf",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386827410-4f3vr",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791386827412-vca9",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386827412-zsw8f",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791386827414-2i1mu"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791386873814-soabk"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791386873818-eob8z",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386873822-n2kua",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791386873825-4s1e",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386873825-sn2tk",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791386873828-31vum"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791386903195-eyiqx"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791386903200-0dafs",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386903204-y5ohz",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791386903207-j2ci",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386903207-eskcl",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791386903210-6o5ol"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791386944460-qxg9v"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791386944464-ef7pn",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386944470-vnqx1",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791386944473-vra0",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791386944473-o6tyc",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791386944476-ngcp7"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791387009636-5tmao"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791387009640-iywdt",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791387009646-7h4xq",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791387009648-e14t",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791387009648-saqit",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791387009650-7lstq"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791387284752-2oibw"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791387284756-x2pha",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791387284762-hnaw5",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791387284764-pg4c",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791387284764-hlie7",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791387284768-ncyur"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791387490192-w4ubb"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791387490197-lht2g",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791387490204-962aw",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791387490206-7jnr",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791387490206-oal93",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791387490208-f8n9r"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791387512902-103i7"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791387512907-qi377",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791387512912-1i0y3",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791387512914-ggkw",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791387512914-g1slq",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791387512917-j4l28"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791387654702-sgqh4"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791387654705-k8wfq",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791387654713-lr5j4",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791387654715-kr4k",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791387654715-vyklm",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791387654718-753en"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791387691789-qixoq"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791387691797-9pt4i",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791387691803-a96ks",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791387691805-m4cb",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791387691805-sykxb",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791387691808-sosgd"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791387765530-d17ra"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791387765533-gom9e",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791387765538-4zzmp",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791387765541-am05",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791387765541-uhrv5",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791387765544-br5ow"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791388380889-jce8z"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791388380896-d3r10",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791388380903-8fjc2",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791388380905-a0mt",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791388380905-vw9hj",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791388380908-45vs8"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791388427475-l4lyk"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791388427480-q44o0",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791388427485-7i6h5",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791388427488-y1by",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791388427487-cmy8k",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791388427491-6i38o"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791388714294-ffxal"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791388714299-nacry",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791388714304-9fjvf",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791388714306-k81z",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791388714306-zwgku",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791388714309-t8a0p"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791388886614-069xk"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791388886620-dyhqx",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791388886625-8mbu3",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791388886627-0wzz",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791388886627-d1pcs",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791388886631-uo7g5"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791389360920-67urm"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791389360924-bnv8b",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791389360930-zpfr2",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791389360932-39b0",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791389360932-xsga7",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791389360935-cp5gd"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791393786563-oal7n"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791393786603-77c2w",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791393786626-wriwf",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791393786630-8f3c",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791393786629-xek31",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791393786634-7pyvh"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791393841213-n1tdf"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791393841224-vl3au",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791393841236-lihsv",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791393841239-032k",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791393841239-658qn",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791393841243-943l9"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791393965517-lajcr"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791393965522-udk6w",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791393965532-7g74q",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791393965534-yzjr",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791393965534-95m5q",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791393965538-jcphf"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791394068782-a3cmp"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791394068788-j5no2",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791394068795-t26q8",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791394068798-6qlz",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791394068798-glv4j",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791394068803-jo46m"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791394184028-2y8cz"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791394184033-h0jx9",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791394184039-qr0jt",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791394184045-0qbl",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791394184045-yp6cs",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791394184052-e2944"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791394270379-46qvs"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791394270411-nivm6",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791394270419-k3p1h",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791394270421-5duy",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791394270421-zxidq",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791394270432-pvnlp"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791394623885-xc106"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791394623889-79aus",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791394623899-rwrwb",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791394623902-o8bd",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791394623902-2fu1d",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791394623907-iocb8"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791395627894-zyc6j"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791395627898-2aox6",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791395627903-dz0ls",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791395627905-zl8d",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791395627905-soxge",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791395627910-y52di"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791395636168-cjauc"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791395636172-hmh56",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791395636178-tit5j",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791395636180-jbmp",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791395636180-z2mno",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791395636184-4wrz2"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1791395706742-6onxf"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1791395706747-mbwxy",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791395706775-87jt4",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1791395706778-bigm",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1791395706778-jm2wx",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1791395706782-p98tc"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1793632170945-8od34"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1793632170951-za6xb",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793632170959-hdvt7",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1793632170962-v11t",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793632170962-7m6hx",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1793632170966-rokeq"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1793632561693-cvvop"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1793632561705-6qrwy",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793632561714-3yxw8",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1793632561716-echx",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793632561716-thxmu",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1793632561720-r7ne2"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1793632760015-codfl"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1793632760040-ga49r",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793632760047-j31f7",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1793632760051-do5e",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793632760051-fkmc7",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1793632760055-n5ocq"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1793632917402-0ft1v"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1793632917407-5gix8",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793632917418-gkqqq",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1793632917421-jb2b",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793632917421-eg6i7",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1793632917425-nlrpz"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1793632980788-9a2x2"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1793632980792-0x0ho",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793632980799-bilzv",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1793632980803-2wti",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793632980803-mxmtu",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1793632980806-sow8w"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1793637735649-dh0pm"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1793637735658-yiois",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793637735666-sua4k",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1793637735672-ooot",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793637735672-d6jt5",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1793637735676-jl9al"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1793637784337-boa1d"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1793637784342-2huub",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793637784348-nku8r",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1793637784351-so0c",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793637784351-dk47g",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1793637784356-8wd6e"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1793639181025-1ja3o"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1793639181029-t471s",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793639181036-ova6c",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1793639181039-2x1e",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793639181039-vn048",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1793639181043-jtiv9"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1793639363472-tlk1n"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1793639363476-3ygrj",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793639363484-a9d9m",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1793639363487-rpuk",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793639363487-qhok7",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1793639363490-3ime5"
+  },
+  {
+    "name": "Test Dental Clinic SEO Profile",
+    "description": "Targets dental practices with low SEO visibility",
+    "targetService": "LOCAL_SEO",
+    "targetNiche": "Dental Clinics",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "rule-test-1",
+        "name": "Must have at least 15 reviews",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "reviewCount",
+          "operator": "greater_than_or_equal",
+          "value": 15
+        }
+      },
+      {
+        "id": "rule-test-2",
+        "name": "Low Google Rating boost",
+        "type": "SOFT_SIGNAL",
+        "weight": 25,
+        "condition": {
+          "field": "rating",
+          "operator": "less_than",
+          "value": 4.2
+        }
+      }
+    ],
+    "id": "icp-1793640859592-d51pi"
+  },
+  {
+    "name": "Updated ICP Profile Name",
+    "targetService": "SOCIAL_MEDIA",
+    "rules": [],
+    "id": "icp-1793640859596-gtxb9",
+    "isActive": true,
+    "targetNiche": "E-commerce"
+  },
+  {
+    "name": "Base Profile to Duplicate",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "r1",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793640859602-b7qwn",
+    "isActive": true
+  },
+  {
+    "name": "Base Profile to Duplicate (Copy)",
+    "targetService": "PPC_ADS",
+    "rules": [
+      {
+        "id": "rule-1793640859606-qutx",
+        "name": "Rule 1",
+        "type": "HARD_FILTER",
+        "condition": {
+          "field": "phone",
+          "operator": "exists"
+        }
+      }
+    ],
+    "id": "icp-1793640859606-cwsmv",
+    "isActive": true
+  },
+  {
+    "name": "Active Toggle Profile",
+    "isActive": false,
+    "rules": [],
+    "id": "icp-1793640859610-3jvo4"
+  }
+]
