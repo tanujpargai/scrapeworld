@@ -17,6 +17,7 @@ async function main() {
     port: 5432,
     persistent: true,
     autoRehydrateSymlinks: true,
+    initdbFlags: ['-E', 'UTF8', '--locale=C'],
   });
 
   try {

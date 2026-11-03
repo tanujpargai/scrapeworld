@@ -1,16 +1,16 @@
 import { z } from 'zod';
 
 const serverSchema = z.object({
-  DATABASE_URL: z.string().url(),
-  DIRECT_URL: z.string().url(),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  REDIS_URL: z.string().url().default('redis://localhost:6379'),
+  DATABASE_URL: z.string().optional(),
+  DIRECT_URL: z.string().optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+  REDIS_URL: z.string().default('redis://127.0.0.1:6380'),
   OPENAI_API_KEY: z.string().optional(),
 });
 
 const clientSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  NEXT_PUBLIC_SUPABASE_URL: z.string().optional(),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
 });
 
 const isServer = typeof window === 'undefined';
