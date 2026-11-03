@@ -72,12 +72,30 @@ ScrapeWorld is an end-to-end prospect discovery, qualification, and intelligence
    ```
    *(Optional for local development — default settings allow immediate out-of-the-box operation)*
 
-### Running the Application
-Start the development server:
-```bash
-npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+### Running the Application (100% Local & Offline)
+
+ScrapeWorld is built for 100% local offline data storage — zero cloud databases, zero external services, and zero subscription costs:
+
+1. **Start Local Database** (embedded PostgreSQL cluster stored in `./data/postgres/`):
+   ```bash
+   npm run db:start
+   ```
+
+2. **Start Local Redis** (embedded Redis queue server on port 6380):
+   ```bash
+   npm run redis:start
+   ```
+
+3. **Start Development Server**:
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+4. **Start Scraping & Audit Worker** (processes Google Maps extraction and website audits):
+   ```bash
+   npm run worker
+   ```
 
 ---
 

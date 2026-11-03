@@ -37,6 +37,7 @@ yarn-error.log*
 # lead storage & evaluations (contains live lead data)
 /data/managed-leads.json
 /data/icp-evaluations.json
+/data/postgres/
 
 # vercel
 .vercel
