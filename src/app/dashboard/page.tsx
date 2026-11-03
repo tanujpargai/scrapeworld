@@ -14,43 +14,60 @@ import {
 export const revalidate = 0; // Disable caching to fetch live data
 
 export default async function DashboardPage() {
-  // Fetch executive stats
-  const [
-    bizCount,
-    auditCount,
-    opportunityCount,
-    dealCount,
-    leadIntelStats,
-  ] = await Promise.all([
-    prisma.business.count(),
-    prisma.website.count(),
-    prisma.opportunity.count(),
-    prisma.deal.count(),
-    prisma.leadIntelligence.aggregate({
-      _avg: {
-        leadScore: true,
-        salesReadinessScore: true,
+  // Fetch executive stats with graceful offline fallback
+  let bizCount = 0;
+  let auditCount = 0;
+  let opportunityCount = 0;
+  let dealCount = 0;
+  let avgLeadScore = 0;
+  let avgSalesReadiness = 0;
+  let recentSearches: any[] = [];
+  let topLeads: any[] = [];
+
+  try {
+    const [
+      bCount,
+      aCount,
+      oCount,
+      dCount,
+      leadIntelStats,
+    ] = await Promise.all([
+      prisma.business.count(),
+      prisma.website.count(),
+      prisma.opportunity.count(),
+      prisma.deal.count(),
+      prisma.leadIntelligence.aggregate({
+        _avg: {
+          leadScore: true,
+          salesReadinessScore: true,
+        },
+      }),
+    ]);
+
+    bizCount = bCount;
+    auditCount = aCount;
+    opportunityCount = oCount;
+    dealCount = dCount;
+    avgLeadScore = Math.round(leadIntelStats._avg.leadScore ?? 0);
+    avgSalesReadiness = Math.round(leadIntelStats._avg.salesReadinessScore ?? 0);
+
+    // Fetch recent searches
+    recentSearches = await prisma.collection.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+    });
+
+    // Fetch Top 10 Leads
+    topLeads = await prisma.leadIntelligence.findMany({
+      orderBy: { opportunityScore: 'desc' },
+      take: 10,
+      include: {
+        business: true,
       },
-    }),
-  ]);
-
-  const avgLeadScore = Math.round(leadIntelStats._avg.leadScore ?? 0);
-  const avgSalesReadiness = Math.round(leadIntelStats._avg.salesReadinessScore ?? 0);
-
-  // Fetch recent searches
-  const recentSearches = await prisma.collection.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 5,
-  });
-
-  // Fetch Top 10 Leads
-  const topLeads = await prisma.leadIntelligence.findMany({
-    orderBy: { opportunityScore: 'desc' },
-    take: 10,
-    include: {
-      business: true,
-    },
-  });
+    });
+  } catch (err: any) {
+    console.warn('Dashboard: Database offline or unconfigured, rendering fallback state:', err?.message || err);
+  }
 
   const cards = [
     { name: 'Total Businesses', value: bizCount, icon: Building2, color: 'text-[#2563EB]' },
