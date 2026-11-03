@@ -43,7 +43,7 @@ export async function POST(request: Request) {
       jobId: collection.id,
       message: 'Collection search job queued successfully',
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('API Error in discovery/search:', error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -51,8 +51,18 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    const errStr = String(error?.message || '') + String(error?.code || '');
+    let clientMessage = 'Failed to start discovery campaign.';
+
+    if (errStr.includes('ECONNREFUSED') || errStr.includes('connect')) {
+      clientMessage = 'Database connection failed. Please ensure PostgreSQL is running (DATABASE_URL configured in .env) to persist and queue collections.';
+    } else if (error?.message) {
+      clientMessage = error.message;
+    }
+
     return NextResponse.json(
-      { success: false, error: 'Internal Server Error' },
+      { success: false, error: clientMessage },
       { status: 500 }
     );
   }

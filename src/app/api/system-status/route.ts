@@ -88,24 +88,37 @@ export async function GET() {
       aiCounts.total + 
       gmapsCounts.total;
 
-    // 4. Database Counts
-    const [
-      businessCount,
-      auditCount,
-      leadCount,
-      opportunityCount,
-      dealCount,
-      taskCount,
-      collectionCount,
-    ] = await Promise.all([
-      prisma.business.count(),
-      prisma.website.count(),
-      prisma.leadIntelligence.count(),
-      prisma.opportunity.count(),
-      prisma.deal.count(),
-      prisma.task.count(),
-      prisma.collection.count(),
-    ]);
+    // 4. Database Counts (gracefully defaults to 0 if database is offline)
+    let businessCount = 0;
+    let auditCount = 0;
+    let leadCount = 0;
+    let opportunityCount = 0;
+    let dealCount = 0;
+    let taskCount = 0;
+    let collectionCount = 0;
+
+    if (dbStatus === 'Connected') {
+      try {
+        const counts = await Promise.all([
+          prisma.business.count(),
+          prisma.website.count(),
+          prisma.leadIntelligence.count(),
+          prisma.opportunity.count(),
+          prisma.deal.count(),
+          prisma.task.count(),
+          prisma.collection.count(),
+        ]);
+        businessCount = counts[0];
+        auditCount = counts[1];
+        leadCount = counts[2];
+        opportunityCount = counts[3];
+        dealCount = counts[4];
+        taskCount = counts[5];
+        collectionCount = counts[6];
+      } catch (e) {
+        // DB offline fallback
+      }
+    }
 
     return NextResponse.json({
       success: true,

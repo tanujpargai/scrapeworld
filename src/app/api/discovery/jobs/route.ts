@@ -3,10 +3,16 @@ import prisma from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const collections = await prisma.collection.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 20,
-    });
+    let collections: any[] = [];
+    try {
+      collections = await prisma.collection.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+      });
+    } catch (dbErr) {
+      // Database offline; return empty collections list
+      return NextResponse.json({ jobs: [] });
+    }
 
     const enrichedCollections = [];
     for (const c of collections) {
